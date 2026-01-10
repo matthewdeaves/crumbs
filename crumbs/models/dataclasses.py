@@ -109,3 +109,21 @@ class RepositoryStats:
     def total_churn(self) -> int:
         """Total code churn (additions + deletions)."""
         return self.total_lines_added + self.total_lines_deleted
+
+
+@dataclass
+class SentimentResult:
+    """LLM sentiment analysis result for a commit."""
+
+    sha: str
+    sentiment: str  # "positive", "neutral", "negative"
+    confidence: float  # 0.0 to 1.0
+    tone: str  # e.g., "enthusiastic", "frustrated", "matter-of-fact"
+    summary: str  # Brief interpretation of the commit's intent
+
+    def __post_init__(self):
+        """Validate sentiment value."""
+        valid_sentiments = {"positive", "neutral", "negative"}
+        if self.sentiment not in valid_sentiments:
+            self.sentiment = "neutral"
+        self.confidence = max(0.0, min(1.0, self.confidence))

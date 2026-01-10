@@ -15,11 +15,14 @@ dependencies = [
     "jinja2>=3.0",
     "rich>=13.0",
     "kaleido>=0.2",
+    "python-dotenv>=1.0",
+    "openrouter>=0.1",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "pytest-asyncio>=0.23",
 ]
 
 [project.scripts]

@@ -5,6 +5,7 @@ from crumbs.models.dataclasses import (
     CommitStats,
     Commit,
     RepositoryStats,
+    SentimentResult,
 )
 
-__all__ = ["CommitType", "CommitStats", "Commit", "RepositoryStats"]
+__all__ = ["CommitType", "CommitStats", "Commit", "RepositoryStats", "SentimentResult"]

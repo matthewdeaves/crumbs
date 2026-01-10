@@ -11,6 +11,8 @@ A Python CLI tool to analyze git commits and generate visual reports.
 - Jinja2 (HTML templating)
 - Rich (terminal output)
 - Kaleido (PNG export)
+- OpenRouter (LLM sentiment analysis - optional)
+- python-dotenv (.env configuration)
 
 ## Key Patterns
 
@@ -18,21 +20,34 @@ A Python CLI tool to analyze git commits and generate visual reports.
 - `models/` - All dataclasses live here, imported elsewhere
 - `git/` - GitPython wrapped, never used directly outside this module
 - `analysis/` - Takes parsed commits, returns statistics
+  - `semantic.py` - Word-based analysis (fallback, no API needed)
+  - `llm_sentiment.py` - Async OpenRouter analysis (optional)
 - `visualization/` - Takes statistics, returns Plotly figures
 - `cli.py` - Ties everything together
+- `config.py` - Loads .env, provides settings
 
 ### Data Flow
 ```
 GitRepository.iter_commits() -> List[Commit]
     -> StatsCalculator(commits) -> RepositoryStats
-    -> ChartGenerator(stats) -> List[Figure]
-    -> ReportGenerator(figures) -> HTML
+    -> LLMSentimentAnalyzer(commits) -> List[SentimentResult]  # async, optional
+    -> ChartGenerator(stats, sentiment) -> Dict[str, Figure]
+    -> ReportGenerator(figures) -> landing page + charts
 ```
 
 ### Conventions
 - Charts return Plotly `Figure` objects, not HTML strings
 - All timestamps are UTC
 - Commit types follow conventional commits spec
+- LLM calls are async with `asyncio.gather()` for parallel batches
+- Graceful degradation: LLM features disabled if no API key
+
+### Environment Variables
+```bash
+OPENROUTER_API_KEY=sk-or-...     # Required for LLM sentiment
+OPENROUTER_MODEL=anthropic/claude-3-haiku  # Default model
+SENTIMENT_BATCH_SIZE=5            # Commits per API call
+```
 
 ## Commands
 ```bash
@@ -41,9 +56,10 @@ pip install -e .
 pytest tests/ -v
 
 # Usage
-crumbs analyze /path/to/repo -o report.html
-crumbs stats /path/to/repo
-crumbs quality /path/to/repo
+crumbs analyze /path/to/repo -o ./report    # Generates report/index.html + charts
+crumbs analyze /path/to/repo --skip-sentiment  # Skip LLM analysis
+crumbs stats /path/to/repo                  # Quick terminal stats
+crumbs quality /path/to/repo                # Commit message quality check
 ```
 
 ## Test Repo

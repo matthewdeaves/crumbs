@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .date-range {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .hero .repo-path {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+            font-family: monospace;
+        }
+
+        /* Stats Cards */
+        .stats-section {
+            margin-top: -2rem;
+            padding-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .stat-card .label {
+            font-size: 0.875rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        }
+
+        .stat-card.highlight .value,
+        .stat-card.highlight .label {
+            color: white;
+        }
+
+        /* Sentiment Section */
+        .sentiment-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .sentiment-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        .sentiment-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sentiment-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .sentiment-item.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .sentiment-item.neutral {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .sentiment-item.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .sentiment-item .count {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .sentiment-item .label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        /* Chart Gallery */
+        .charts-section {
+            padding: 2rem 0;
+        }
+
+        .charts-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card .chart-container {
+            padding: 1rem;
+        }
+
+        .chart-card .chart-title {
+            padding: 1rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-card .chart-title h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .chart-card .chart-links a {
+            font-size: 0.875rem;
+            color: #2563eb;
+            text-decoration: none;
+            margin-left: 1rem;
+        }
+
+        .chart-card .chart-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Export Section */
+        .export-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .export-section h3 {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .export-btn.primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .export-btn.primary:hover {
+            background: #1d4ed8;
+        }
+
+        .export-btn.secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .export-btn.secondary:hover {
+            background: #e2e8f0;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .footer a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .chart-gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .export-section {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <h1>{{ title }}</h1>
+            {% if date_range %}
+            <p class="date-range">{{ date_range }}</p>
+            {% endif %}
+            {% if repo_path %}
+            <p class="repo-path">{{ repo_path }}</p>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card highlight">
+                    <div class="value">{{ summary.total_commits }}</div>
+                    <div class="label">Total Commits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">{{ summary.co_authored_pct }}</div>
+                    <div class="label">Co-Authored</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">{{ summary.conventional_pct }}</div>
+                    <div class="label">Conventional</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">{{ summary.lines_added }}</div>
+                    <div class="label">Lines Added</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">{{ summary.lines_deleted }}</div>
+                    <div class="label">Lines Deleted</div>
+                </div>
+                {% if summary.work_sessions %}
+                <div class="stat-card">
+                    <div class="value">{{ summary.work_sessions }}</div>
+                    <div class="label">Work Sessions</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {% if sentiment %}
+    <!-- Sentiment Section -->
+    <section class="container">
+        <div class="sentiment-section">
+            <h2>Commit Sentiment Analysis</h2>
+            <div class="sentiment-summary">
+                <div class="sentiment-item positive">
+                    <div class="count">{{ sentiment.positive }}</div>
+                    <div class="label">Positive</div>
+                </div>
+                <div class="sentiment-item neutral">
+                    <div class="count">{{ sentiment.neutral }}</div>
+                    <div class="label">Neutral</div>
+                </div>
+                <div class="sentiment-item negative">
+                    <div class="count">{{ sentiment.negative }}</div>
+                    <div class="label">Negative</div>
+                </div>
+            </div>
+            {% if sentiment.chart %}
+            <div class="chart-container">
+                {{ sentiment.chart | safe }}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Chart Gallery -->
+    <section class="charts-section">
+        <div class="container">
+            <h2>Analysis Charts</h2>
+            <div class="chart-gallery">
+                {% for chart in charts %}
+                <div class="chart-card">
+                    <div class="chart-container">
+                        {{ chart.html | safe }}
+                    </div>
+                    <div class="chart-title">
+                        <h3>{{ chart.title }}</h3>
+                        <div class="chart-links">
+                            <a href="{{ chart.html_file }}" target="_blank">Full View</a>
+                            <a href="{{ chart.png_file }}" download>PNG</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Export Section -->
+    <section class="container">
+        <div class="export-section">
+            <h3>Export Options</h3>
+            <div class="export-buttons">
+                {% if json_file %}
+                <a href="{{ json_file }}" class="export-btn secondary" download>Download JSON</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Generated by <a href="https://github.com/matthewdeaves/crumbs">Crumbs</a> - Git Commit History Analyzer</p>
+            <p>{{ generated_at }}</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,5 +1,12 @@
 """Configuration constants for crumbs."""
 
+import os
+
+from dotenv import load_dotenv
+
+# Load .env file from project root
+load_dotenv()
+
 # Commit size thresholds (total lines changed)
 SIZE_THRESHOLDS = {
     "small": 10,
@@ -25,3 +32,9 @@ CONVENTIONAL_TYPES = [
     "chore",
     "revert",
 ]
+
+# LLM Settings (OpenRouter)
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "anthropic/claude-3-haiku")
+SENTIMENT_BATCH_SIZE = int(os.getenv("SENTIMENT_BATCH_SIZE", "5"))
+LLM_AVAILABLE = bool(OPENROUTER_API_KEY)
