@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; }
+        .chart { margin: 2rem 0; }
+        .summary { background: #f5f5f5; padding: 1rem; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="summary">
+        {% for key, value in summary.items() %}
+        <p><strong>{{ key }}:</strong> {{ value }}</p>
+        {% endfor %}
+    </div>
+    {% for chart in charts %}
+    <div class="chart">
+        {{ chart | safe }}
+    </div>
+    {% endfor %}
+</body>
+</html>
